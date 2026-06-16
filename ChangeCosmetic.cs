@@ -23,10 +23,13 @@ public class ChangeCosmetic : MonoBehaviour
         if (!other.CompareTag("HandTag") && !other.CompareTag("ModTag"))
             return;
 
-      
+
+
+        if (Playfablogin.instance != null && !Playfablogin.instance.TryChangeCosmetic(type.ToString(), name))
+            return;
 
         // Apply on network
         PhotonVRManager.SetCosmetic(type.ToString(), name);
-        
+
     }
 }
