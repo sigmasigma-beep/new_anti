@@ -9,6 +9,7 @@ using System.Text;
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Photon.Realtime;
 
 [RequireComponent(typeof(PhotonView))]
 public class LeaderBoard : MonoBehaviour
@@ -30,7 +31,7 @@ public class LeaderBoard : MonoBehaviour
     }
     private void Update()
     {
-        if (PhotonNetwork.IsConnected && !hashed) 
+        if (PhotonNetwork.IsConnected && !hashed)
         {
             ExitGames.Client.Photon.Hashtable hash = PhotonNetwork.LocalPlayer.CustomProperties;
             hash["PlayfabID"] = playfablogin.MyPlayFabID;
@@ -41,7 +42,7 @@ public class LeaderBoard : MonoBehaviour
         {
             if (!Kicked)
             {
-                displaySpot[i].text = PhotonNetwork.PlayerList[i].NickName;
+                displaySpot[i].text = FormatLeaderboardName(PhotonNetwork.PlayerList[i]);
                 foreach (PhotonVRPlayer PVRP in FindObjectsOfType<PhotonVRPlayer>())
                 {
                     if (PVRP.gameObject.GetComponent<PhotonView>().Owner == PhotonNetwork.PlayerList[i])
@@ -70,6 +71,27 @@ public class LeaderBoard : MonoBehaviour
                 ColorSpot[i].material.color = Color.white;
             }
         }
+    }
+
+    private string FormatLeaderboardName(Player player)
+    {
+        string playerName = player.NickName;
+
+        if (player.CustomProperties == null || !player.CustomProperties.ContainsKey("LeaderboardTag"))
+            return playerName;
+
+        string tag = player.CustomProperties["LeaderboardTag"] as string;
+        if (string.IsNullOrEmpty(tag))
+            return playerName;
+
+        string color = player.CustomProperties.ContainsKey("LeaderboardTagColor")
+            ? player.CustomProperties["LeaderboardTagColor"] as string
+            : "#FFFFFF";
+
+        if (string.IsNullOrEmpty(color))
+            color = "#FFFFFF";
+
+        return playerName + " <color=" + color + ">[" + tag + "]</color>";
     }
 
     public void MutePress(int ButtonNumber)
